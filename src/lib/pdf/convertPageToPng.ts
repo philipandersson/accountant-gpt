@@ -1,5 +1,7 @@
+import { PDFDocumentProxy } from "pdfjs-dist";
+
 export async function convertPageToPng(
-  pdf: any,
+  pdf: PDFDocumentProxy,
   pageNum: number
 ): Promise<string> {
   const page = await pdf.getPage(pageNum);
