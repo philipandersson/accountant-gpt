@@ -1,5 +1,5 @@
 {
-  "name": "bookkeeper-gpt",
+  "name": "accountant-gpt",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -32,6 +32,7 @@
     "@types/node": "^20.12.12",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv": "^16.4.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",
