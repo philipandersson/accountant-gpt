@@ -7,23 +7,44 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InvoiceVoucher } from "@/lib/schemas";
+import { PartialInvoiceVoucher } from "@/lib/schemas";
+import { isNumber } from "lodash";
+import { Input } from "./ui/input";
+
+function getCurrencySymbol(locale: string, currency: string) {
+  const formatter = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  const parts = formatter.formatToParts(0);
+  const currencySymbol = parts.find((part) => part.type === "currency").value;
+
+  return currencySymbol;
+}
 
 export default function AccountingVoucher({
   supplier,
   issueDate,
-  dueDate,
+  dueDate: originalDueDate,
   vatRate,
   currency,
   totalAmount,
   invoiceOrReceiptNumber,
   rows,
-}: InvoiceVoucher) {
+}: PartialInvoiceVoucher) {
   const currencyFormatter = new Intl.NumberFormat("en-US", {
     style: "currency",
     currencyDisplay: "symbol",
-    currency,
+    currency: currency ?? "USD",
   });
+  const currencySymbol = currency
+    ? getCurrencySymbol("en-US", currency)
+    : "N/A";
+
+  const dueDate = originalDueDate ?? issueDate;
 
   return (
     <Card className="w-full md:w-1/2">
@@ -35,23 +56,29 @@ export default function AccountingVoucher({
             </h3>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <span className="font-semibold">Issued on: </span>
-              <time dateTime={issueDate.toISOString()}>
-                {issueDate.toLocaleDateString()}
-              </time>
+              {issueDate && (
+                <time dateTime={issueDate.toISOString()}>
+                  {issueDate.toLocaleDateString()}
+                </time>
+              )}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <span className="font-semibold">Due by: </span>
-              <time dateTime={(dueDate ?? issueDate).toISOString()}>
-                {(dueDate ?? issueDate).toLocaleDateString()}
-              </time>
+              {dueDate && (
+                <time dateTime={dueDate.toISOString()}>
+                  {dueDate.toLocaleDateString()}
+                </time>
+              )}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <span className="font-semibold">VAT Rate: </span>
-              <span>{vatRate * 100}%</span>
+              <span>{isNumber(vatRate) ? `${vatRate * 100}%` : "N/A"}</span>
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <span className="font-semibold">Total Amount: </span>
-              <span>{currencyFormatter.format(totalAmount)}</span>
+              {totalAmount && (
+                <span>{currencyFormatter.format(totalAmount)}</span>
+              )}
             </div>
           </div>
           <div className="text-right">
@@ -71,16 +98,42 @@ export default function AccountingVoucher({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {rows.map((row) => (
-              <TableRow key={row.account}>
+            {rows?.map((row, idx) => (
+              <TableRow key={idx}>
                 <TableCell>
                   {row.accountName} - {row.account}
                 </TableCell>
                 <TableCell className="text-right">
-                  {row.debit ? currencyFormatter.format(row.debit) : "-"}
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {currencySymbol}
+                      </span>
+                    </div>
+                    <Input
+                      className="pl-9"
+                      id="amount"
+                      type="number"
+                      readOnly
+                      value={row.debit ?? "-"}
+                    />
+                  </div>
                 </TableCell>
                 <TableCell className="text-right">
-                  {row.credit ? currencyFormatter.format(row.credit) : "-"}
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {currencySymbol}
+                      </span>
+                    </div>
+                    <Input
+                      className="pl-9"
+                      id="amount"
+                      type="number"
+                      readOnly
+                      value={row.credit ?? "-"}
+                    />
+                  </div>
                 </TableCell>
               </TableRow>
             ))}

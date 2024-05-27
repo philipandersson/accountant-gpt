@@ -1,6 +1,8 @@
+import { createPartialObjectStream } from "@/lib/llm/create-partial-object-stream";
 import { llm } from "@/lib/llm/instructor";
 import { logger } from "@/lib/logger";
 import { bodySchema, invoiceVoucherSchema } from "@/lib/schemas";
+import { InvoiceVoucher } from "../../../lib/schemas";
 
 export async function POST(request: Request) {
   const { success, data, error } = bodySchema.safeParse(await request.json());
@@ -13,8 +15,9 @@ export async function POST(request: Request) {
     console.log(image.name, image.base64.slice(0, 10), image.type);
   });
 
-  const llmResponse = await llm.chat.completions.create({
+  const llmGenerator = await llm.chat.completions.create({
     model: "gpt-4o",
+    stream: true,
     response_model: { schema: invoiceVoucherSchema, name: "Invoice" },
     messages: [
       {
@@ -22,7 +25,7 @@ export async function POST(request: Request) {
         content: `You are a helpful assistant that suggests how to do accounting/bookkeeping for a Aktiebolag company based in Sweden.
       Make sure to reason about if there is any VAT involved in the invoice or receipt and a row for that if so.
       You need to understand what the invoice or receipt to make sure you can book the amount correctly on the correct account.
-      
+
       If it seems to have been charged by card (receipt) then you need to add a row that is a credit for bank account.
       Otherwise, if it is an invoice, you need to add a row that is a credit for accounts payable.
 
@@ -296,7 +299,7 @@ export async function POST(request: Request) {
     ],
   });
 
-  logger.info({ llmResponse }, "LLM response");
+  logger.info({ llmGenerator }, "LLM response");
 
-  return Response.json(llmResponse);
+  return new Response(createPartialObjectStream<InvoiceVoucher>(llmGenerator));
 }

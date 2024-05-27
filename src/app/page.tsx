@@ -3,15 +3,14 @@ import AccountingVoucher from "@/components/accounting-voucher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useStream } from "@/components/use-stream";
 import { convertPageToPng } from "@/lib/pdf/convertPageToPng";
-import { Base64Image } from "@/lib/schemas";
+import { Base64Image, partialInvoiceVoucherSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
 import { LucideLoader, LucideSparkles } from "lucide-react";
 import Image from "next/image";
 import * as pdfjsLib from "pdfjs-dist";
 import { useRef, useState } from "react";
-import { invoiceVoucherSchema } from "../lib/schemas";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
@@ -20,44 +19,12 @@ export default function Home() {
   const [images, setImages] = useState<Array<Base64Image>>([]);
 
   const {
+    retrieve,
+    result: inoviceVoucher,
     isPending,
-    mutate,
-    data: inoviceVoucher,
-    reset: resetInvoiceVoucher,
-  } = useMutation({
-    mutationFn: async (images: Array<Base64Image>) => {
-      try {
-        const response = await fetch("/api/bookkeep", {
-          method: "POST",
-          body: JSON.stringify({
-            images,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("File upload failed");
-        }
-
-        const json = await response.json();
-
-        console.log(json);
-
-        return invoiceVoucherSchema.parse(json);
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    },
-    onSuccess: () => {
-      console.log("Images uploaded successfully");
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-      setImages([]);
-    },
-  });
+    error,
+    reset,
+  } = useStream(partialInvoiceVoucherSchema);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -87,10 +54,8 @@ export default function Home() {
         })
       );
 
-      console.log(convertedImages);
-
       setImages(convertedImages);
-      resetInvoiceVoucher();
+      reset();
     } else {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -107,8 +72,6 @@ export default function Home() {
       };
       reader.readAsDataURL(currentFile);
     }
-
-    console.log(currentFile, images);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -118,13 +81,15 @@ export default function Home() {
       return;
     }
 
-    mutate(images);
+    retrieve(images);
   };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8 gap-4">
       <h1 className="text-2xl">How do I account for my invoice or receipt?</h1>
-      {inoviceVoucher && <AccountingVoucher {...inoviceVoucher} />}
+      {Object.keys(inoviceVoucher).length > 0 && (
+        <AccountingVoucher {...inoviceVoucher} />
+      )}
       <form
         onSubmit={handleSubmit}
         className="flex flex-col items-center gap-4"
