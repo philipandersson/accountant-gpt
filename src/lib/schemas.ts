@@ -28,11 +28,11 @@ export const invoiceVoucherSchema = z.object({
   supplier: z.string(),
   issueDate: z.coerce
     .date()
-    .describe("Date of issuance for invoice or receipt, e.g 2023-06-07"),
+    .describe("Date of issuance for invoice or receipt"),
   dueDate: z.coerce
     .date()
     .nullable()
-    .describe("Due date of invoice or receipt, e.g 2024-01-01"),
+    .describe("Due date of invoice or receipt if defined"),
   vatRate: z.number().min(0).max(1),
   totalAmount: z.number(),
   currency: z.string().describe("ISO 4217 currency code"),
