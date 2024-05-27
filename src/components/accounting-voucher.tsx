@@ -20,9 +20,9 @@ function getCurrencySymbol(locale: string, currency: string) {
   });
 
   const parts = formatter.formatToParts(0);
-  const currencySymbol = parts.find((part) => part.type === "currency").value;
+  const currencySymbol = parts.find((part) => part.type === "currency")?.value;
 
-  return currencySymbol;
+  return currencySymbol ?? "N/A";
 }
 
 export default function AccountingVoucher({
