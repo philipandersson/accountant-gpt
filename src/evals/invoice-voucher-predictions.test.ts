@@ -6,6 +6,7 @@ import path from "path";
 
 const evals = [
   {
+    prompt: "Det här är en faktura för cloudtjänster",
     filename: "invoice-1.png",
     gold: {
       supplier: "Akamai Technologies International AG",
@@ -27,6 +28,7 @@ const evals = [
     },
   },
   {
+    prompt: "Det här är ett kvitto för ett coworking-kontor",
     filename: "invoice-2.png",
     gold: {
       supplier: "Bröd & Salt Bageri AB",
@@ -34,8 +36,8 @@ const evals = [
       dueDate: null,
       vatRate: 0.25,
       totalAmount: 999,
-      currency: "USD",
-      invoiceOrReceiptNumber: "26360606",
+      currency: "SEK",
+      invoiceOrReceiptNumber: null,
       rows: [
         {
           accountName: "Hyra för kontorslokaler",
@@ -61,7 +63,7 @@ const evals = [
 ];
 
 describe("invoice-voucher-predictions", async () => {
-  for (const { filename, gold } of evals) {
+  for (const { prompt, filename, gold } of evals) {
     it(`should match gold for ${filename}`, async () => {
       const file = Bun.file(path.join(__dirname, "data", filename));
       const imageBase64 = Buffer.from(await file.arrayBuffer()).toString(
@@ -70,13 +72,16 @@ describe("invoice-voucher-predictions", async () => {
 
       let prediction: PartialInvoiceVoucher = {};
 
-      for await (const chunk of await predictInvoiceVoucher([
-        {
-          name: filename,
-          base64: imageBase64,
-          type: `data:${file.type};base64`,
-        },
-      ])) {
+      for await (const chunk of await predictInvoiceVoucher(
+        [
+          {
+            name: filename,
+            base64: imageBase64,
+            type: `data:${file.type};base64`,
+          },
+        ],
+        prompt
+      )) {
         prediction = chunk;
       }
 

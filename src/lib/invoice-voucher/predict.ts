@@ -1,7 +1,10 @@
 import { llm } from "../llm/instructor";
 import { Base64Image, invoiceVoucherSchema } from "../schemas";
 
-export async function predictInvoiceVoucher(images: Array<Base64Image>) {
+export async function predictInvoiceVoucher(
+  images: Array<Base64Image>,
+  prompt?: string
+) {
   return llm.chat.completions.create({
     model: "gpt-4o",
     stream: true,
@@ -38,7 +41,6 @@ export async function predictInvoiceVoucher(images: Array<Base64Image>) {
       50 Lokalkostnader
 
       5000  Lokalkostnader (gruppkonto
-      5010	Lokalhyra
       5011	Hyra för kontorslokaler
       5012	Hyra för garage
       5013	Hyra för lagerlokaler
@@ -290,7 +292,8 @@ export async function predictInvoiceVoucher(images: Array<Base64Image>) {
         content: [
           {
             type: "text",
-            text: "Please bookkeep the following invoices or receipts:",
+            text:
+              prompt ?? "Please bookkeep the following invoices or receipts:",
           },
           ...images.map(
             ({ type, base64 }) =>

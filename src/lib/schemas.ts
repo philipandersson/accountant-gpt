@@ -35,8 +35,11 @@ export const invoiceVoucherSchema = z.object({
     .describe("Due date of invoice or receipt if defined"),
   vatRate: z.number().min(0).max(1),
   totalAmount: z.number(),
-  currency: z.string().describe("ISO 4217 currency code"),
-  invoiceOrReceiptNumber: z.string().nullable(),
+  currency: z.string().describe("Extract ISO 4217 currency code from image"),
+  invoiceOrReceiptNumber: z
+    .string()
+    .nullable()
+    .describe("Extract invoice or receipt number from image if it exists"),
   rows: z.array(voucherRowSchema).min(2),
 });
 
