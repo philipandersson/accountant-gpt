@@ -36,16 +36,22 @@ export function useStream<T, TVariables>({
         const stream = await streamFn(variables, abortController.signal);
 
         let _result: T | undefined;
+        let _error: Error | undefined;
 
         for await (const part of decodePartialObjectStream<T>(
           stream,
           resultSchema
         )) {
-          setResult(part);
-          _result = part as T;
+          if (part.success) {
+            setResult(part.data);
+            _result = part as T;
+          }
+          _error = part.error;
         }
 
-        if (_result) {
+        if (_error) {
+          setError(_error);
+        } else if (_result) {
           onSuccess(_result);
         }
       } catch (thrown) {

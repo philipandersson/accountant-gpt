@@ -11,7 +11,7 @@ function parseJsonLine<T>(line: string): T {
 export async function* decodePartialObjectStream<T>(
   reader: ReadableStreamDefaultReader<Uint8Array>,
   schema: z.ZodSchema<Partial<T>>
-): AsyncGenerator<Partial<T>> {
+) {
   const decoder = new TextDecoder();
 
   while (true) {
@@ -24,24 +24,14 @@ export async function* decodePartialObjectStream<T>(
     const decoded = decoder.decode(value, { stream: true });
     const lines = decoded.split("\n").filter(Boolean);
 
-    let error: z.ZodError<Partial<T>> | undefined;
-
     for (const line of lines) {
       const json = schema.safeParse(parseJsonLine<Partial<T>>(line));
 
-      error = json.error;
-
       if (!json.success) {
         console.warn(JSON.stringify(json.error));
-      } else {
-        yield json.data;
       }
-    }
 
-    if (error) {
-      throw new Error(`Failed to parse JSON line: ${error.message}`, {
-        cause: error,
-      });
+      yield json;
     }
   }
 }
