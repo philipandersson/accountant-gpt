@@ -24,14 +24,24 @@ export async function* decodePartialObjectStream<T>(
     const decoded = decoder.decode(value, { stream: true });
     const lines = decoded.split("\n").filter(Boolean);
 
+    let error: z.ZodError<Partial<T>> | undefined;
+
     for (const line of lines) {
       const json = schema.safeParse(parseJsonLine<Partial<T>>(line));
 
+      error = json.error;
+
       if (!json.success) {
-        console.error(JSON.stringify(json.error));
+        console.warn(JSON.stringify(json.error));
       } else {
         yield json.data;
       }
+    }
+
+    if (error) {
+      throw new Error(`Failed to parse JSON line: ${error.message}`, {
+        cause: error,
+      });
     }
   }
 }
