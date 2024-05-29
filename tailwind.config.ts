@@ -19,7 +19,7 @@ const config = {
     },
     extend: {
       aspectRatio: {
-        a4: "1.414 / 1",
+        a4: "1 / 1.414",
       },
       colors: {
         border: "hsl(var(--border))",

@@ -12,7 +12,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Upload invoice or receipt",
+  title: "Accountant GPT",
   description: "Bookkeeps your invoices and receipts",
 };
 
