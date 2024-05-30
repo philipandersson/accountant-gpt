@@ -5,6 +5,8 @@ import { bodySchema } from "@/lib/schemas";
 import { isString } from "lodash";
 import { InvoiceVoucher } from "../../../lib/schemas";
 
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   const { success, data, error } = bodySchema.safeParse(await request.json());
 
