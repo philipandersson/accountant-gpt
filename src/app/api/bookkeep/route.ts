@@ -2,6 +2,7 @@ import { predictInvoiceVoucher } from "@/lib/invoice-voucher/predict";
 import { createPartialObjectStream } from "@/lib/llm/create-partial-object-stream";
 import { logger } from "@/lib/logger";
 import { bodySchema } from "@/lib/schemas";
+import { isString } from "lodash";
 import { InvoiceVoucher } from "../../../lib/schemas";
 
 export async function POST(request: Request) {
@@ -19,7 +20,13 @@ export async function POST(request: Request) {
     });
   });
 
-  const llmGenerator = await predictInvoiceVoucher(data.images);
+  const llmGenerator = await predictInvoiceVoucher({
+    prompt:
+      isString(data.prompt) && data.prompt.trim().length > 0
+        ? data.prompt
+        : null,
+    images: data.images,
+  });
 
   logger.info({ llmGenerator }, "LLM response");
 

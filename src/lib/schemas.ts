@@ -7,8 +7,11 @@ export const base64ImageSchema = z.object({
 });
 
 export const bodySchema = z.object({
+  prompt: z.string().nullable(),
   images: z.array(base64ImageSchema),
 });
+
+export type LlmQuery = z.infer<typeof bodySchema>;
 
 export type Base64Image = z.infer<typeof base64ImageSchema>;
 

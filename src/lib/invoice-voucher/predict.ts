@@ -1,10 +1,12 @@
 import { llm } from "../llm/instructor";
-import { Base64Image, invoiceVoucherSchema } from "../schemas";
+import { invoiceVoucherSchema, LlmQuery } from "../schemas";
 
-export async function predictInvoiceVoucher(
-  images: Array<Base64Image>,
-  prompt?: string
-) {
+// TODO:
+// * Add a safeguard to prevent non invoices trying to be predicted
+// * Sample n results from the LLM
+// * Add a judge evaluation
+
+export async function predictInvoiceVoucher({ prompt, images }: LlmQuery) {
   return llm.chat.completions.create({
     model: "gpt-4o",
     stream: true,

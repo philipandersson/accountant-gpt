@@ -162,7 +162,7 @@ export function AccountingVoucher({
                         </span>
                       </div>
                       <Input
-                        className="pl-9"
+                        className="pl-10"
                         id="amount"
                         type="number"
                         readOnly
@@ -178,7 +178,7 @@ export function AccountingVoucher({
                         </span>
                       </div>
                       <Input
-                        className="pl-9"
+                        className="pl-10"
                         id="amount"
                         type="number"
                         readOnly

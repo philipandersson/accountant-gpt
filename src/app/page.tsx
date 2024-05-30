@@ -15,6 +15,7 @@ import { useRef, useState } from "react";
 export default function Home() {
   const [step, setStep] = useState<"step1" | "step2" | "step3">("step1");
   const [images, setImages] = useState<Array<Base64Image>>([]);
+  const [prompt, setPrompt] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
   const {
@@ -29,6 +30,7 @@ export default function Home() {
         method: "POST",
         body: JSON.stringify({
           images,
+          prompt,
         }),
         headers: {
           "Content-Type": "application/json",
@@ -57,11 +59,14 @@ export default function Home() {
   });
 
   const accountVoucherReady = Object.keys(inoviceVoucher).length > 0;
-  const imagesUploaded = images.length > 0;
 
   function handleImagesUploaded(images: Array<Base64Image>) {
     setImages(images);
     reset();
+  }
+
+  function handlePromptChanged(prompt: string) {
+    setPrompt(prompt);
   }
 
   function handleSubmit() {
@@ -80,7 +85,7 @@ export default function Home() {
         onValueChange={(value) => setStep(value as "step1" | "step2" | "step3")}
         className="max-w-2xl justify-center items-center"
       >
-        <TabsList className="flex items-center justify-center gap-4 bg-transparent">
+        <TabsList className="flex items-center justify-center gap-4 pb-8 bg-transparent">
           <TabsTrigger
             value="step1"
             className="data-[state=active]:bg-transparent"
@@ -98,14 +103,14 @@ export default function Home() {
           <TabsTrigger
             value="step2"
             className="data-[state=active]:bg-transparent"
-            disabled={!imagesUploaded}
+            disabled={isPending || !accountVoucherReady}
           >
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-sm font-medium text-white dark:bg-gray-50 dark:text-gray-900">
                 2
               </div>
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Suggestion
+                Suggested record
               </span>
             </div>
           </TabsTrigger>
@@ -120,7 +125,7 @@ export default function Home() {
                 3
               </div>
               <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                Record
+                Voucher recorded
               </span>
             </div>
           </TabsTrigger>
@@ -135,6 +140,7 @@ export default function Home() {
             <CardContent>
               <UploadImageForm
                 onImagesUploaded={handleImagesUploaded}
+                onPromptChanged={handlePromptChanged}
                 onSubmit={handleSubmit}
                 ref={formRef}
               >
@@ -148,7 +154,7 @@ export default function Home() {
                   ) : (
                     <LucideSparkles className="w-4 h-4" />
                   )}
-                  <span className="ml-2">Record suggestion</span>
+                  <span className="ml-2">Create suggestion</span>
                 </Button>
               </UploadImageForm>
               {images.length > 0 && (
@@ -183,6 +189,7 @@ export default function Home() {
         <TabsContent value="step2">
           {error && <div className="text-red-500">{error.message}</div>}
           {<AccountingVoucher data={inoviceVoucher} isPending={isPending} />}
+          <Button disabled={!accountVoucherReady || isPending}>Record</Button>
         </TabsContent>
       </Tabs>
     </main>

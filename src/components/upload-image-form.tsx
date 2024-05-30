@@ -12,13 +12,17 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.j
 interface UploadImageFormProps {
   children: React.ReactNode;
   onImagesUploaded: (images: Array<Base64Image>) => void;
+  onPromptChanged: (prompt: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const UploadImageForm = forwardRef<
   HTMLFormElement,
   UploadImageFormProps
->(function UploadImageForm({ children, onImagesUploaded, onSubmit }, ref) {
+>(function UploadImageForm(
+  { children, onImagesUploaded, onPromptChanged, onSubmit },
+  ref
+) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleReset = useCallback(() => {
@@ -26,6 +30,12 @@ export const UploadImageForm = forwardRef<
       fileInputRef.current.value = "";
     }
   }, [fileInputRef]);
+
+  async function handlePromptChange(
+    event: React.ChangeEvent<HTMLInputElement>
+  ) {
+    onPromptChanged(event.target.value);
+  }
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const currentFile = event.target.files?.[0] ?? "";
@@ -84,9 +94,19 @@ export const UploadImageForm = forwardRef<
       ref={ref}
       onReset={handleReset}
     >
-      <div className="flex flex-col w-full items-center gap-2">
+      <div className="flex flex-col w-full gap-2">
+        <Label htmlFor="inoviceFile">What are you recording? (Optional)</Label>
+        <Input
+          name="prompt"
+          id="prompt"
+          type="text"
+          onChange={handlePromptChange}
+        />
+      </div>
+      <div className="flex flex-col w-full gap-2">
         <Label htmlFor="inoviceFile">
-          Upload invoice or Receipt (PDF or Image)
+          Upload invoice or receipt (PDF or Image)
+          <span className="text-red-500">*</span>
         </Label>
         <Input
           name="file"
