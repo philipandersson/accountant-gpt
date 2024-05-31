@@ -8,8 +8,10 @@ import { UploadImageForm } from "@/components/upload-image-form";
 import { useStream } from "@/components/use-stream";
 import { Base64Image, partialInvoiceVoucherSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { generateSignInUrl } from "@/lib/visma-eaccounting/client";
 import { LucideLoader, LucideSparkles } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRef, useState } from "react";
 
 export default function Home() {
@@ -80,6 +82,15 @@ export default function Home() {
 
   return (
     <main className="flex flex-col justify-center items-center p-8 w-full min-h-screen">
+      <Button asChild>
+        <Link
+          href={generateSignInUrl(
+            process.env.NEXT_PUBLIC_VISMA_EACCOUNTING_CLIENT_ID ?? ""
+          )}
+        >
+          Login
+        </Link>
+      </Button>
       <Tabs
         value={step}
         onValueChange={(value) => setStep(value as "step1" | "step2" | "step3")}
