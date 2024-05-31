@@ -19,3 +19,5 @@ export const TokenSchema = z.object({
   refresh_token: z.string(),
   scope: z.array(TokenScopeSchema),
 });
+
+export type Token = z.infer<typeof TokenSchema>;

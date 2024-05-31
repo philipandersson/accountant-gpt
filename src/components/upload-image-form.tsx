@@ -9,17 +9,17 @@ import { Label } from "./ui/label";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-interface UploadImageFormProps {
+interface RecordSuggestionFormProps {
   children: React.ReactNode;
   onImagesUploaded: (images: Array<Base64Image>) => void;
   onPromptChanged: (prompt: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-export const UploadImageForm = forwardRef<
+export const RecordSuggestionForm = forwardRef<
   HTMLFormElement,
-  UploadImageFormProps
->(function UploadImageForm(
+  RecordSuggestionFormProps
+>(function RecordSuggestionForm(
   { children, onImagesUploaded, onPromptChanged, onSubmit },
   ref
 ) {
